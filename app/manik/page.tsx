@@ -1,6 +1,13 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { Calendar, Users, DollarSign, Loader2, CheckCircle, XCircle } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  Users,
+  DollarSign,
+  Loader2,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 interface UserData {
   maskedEmail: string;
@@ -32,45 +39,63 @@ const Dashboard = () => {
   const [revenueData, setRevenueData] = useState<RevenueResponse | null>(null);
 
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i);
+  const years = Array.from(
+    { length: 10 },
+    (_, i) => new Date().getFullYear() - 5 + i
+  );
 
   const fetchData = async () => {
     setLoading(true);
     try {
       // Fetch signup data
-      const signupResponse = await fetch('https://pre.dashboard.stepgenie.app/api/referral/manik/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          year: selectedYear,
-          month: selectedMonth,
-        }),
-      });
+      const signupResponse = await fetch(
+        "https://pre.dashboard.stepgenie.app/api/referral/manik/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            year: selectedYear,
+            month: selectedMonth,
+          }),
+        }
+      );
       const signupResult = await signupResponse.json();
       setSignupData(signupResult);
 
       // Fetch revenue data
-      const revenueResponse = await fetch('https://pre.dashboard.stepgenie.app/api/referral/manik/revenue', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          year: selectedYear,
-          month: selectedMonth,
-        }),
-      });
+      const revenueResponse = await fetch(
+        "https://pre.dashboard.stepgenie.app/api/referral/manik/revenue",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            year: selectedYear,
+            month: selectedMonth,
+          }),
+        }
+      );
       const revenueResult = await revenueResponse.json();
       setRevenueData(revenueResult);
-
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -81,9 +106,9 @@ const Dashboard = () => {
   }, [selectedYear, selectedMonth]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -99,7 +124,9 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-gray-600">View signups and revenue data by month</p>
+          <p className="text-gray-600">
+            View signups and revenue data by month
+          </p>
         </div>
 
         {/* Date Selector */}
@@ -162,7 +189,9 @@ const Dashboard = () => {
                     <Users className="w-6 h-6 text-blue-600" />
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-900">Total Signups</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Total Signups
+                    </h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">
                       {signupData?.count || 0}
                     </p>
@@ -172,43 +201,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Active Plans Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-lg bg-green-100">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-900">Active Plans</h3>
-                    <p className="text-2xl font-bold text-green-600 mt-1">
-                      {signupData?.activePlansCount || 0}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {getConversionRate()}% conversion
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Inactive Plans Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-lg bg-red-100">
-                    <XCircle className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-900">No Plans</h3>
-                    <p className="text-2xl font-bold text-red-600 mt-1">
-                      {signupData?.inactivePlansCount || 0}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Free users
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Total Revenue Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex items-center">
@@ -216,7 +208,9 @@ const Dashboard = () => {
                     <DollarSign className="w-6 h-6 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-900">Total Revenue</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Total Revenue
+                    </h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">
                       {formatCurrency(revenueData?.totalRevenue || 0)}
                     </p>
@@ -243,7 +237,7 @@ const Dashboard = () => {
                   )}
                 </p>
               </div>
-              
+
               {signupData?.users && signupData.users.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -273,11 +267,14 @@ const Dashboard = () => {
                             {user.maskedEmail}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(user.signupDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
+                            {new Date(user.signupDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {user.hasActivePlan ? (
@@ -300,9 +297,12 @@ const Dashboard = () => {
               ) : (
                 <div className="p-12 text-center">
                   <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-gray-500 mb-2">No signups found</p>
+                  <p className="text-lg font-medium text-gray-500 mb-2">
+                    No signups found
+                  </p>
                   <p className="text-sm text-gray-400">
-                    No users signed up in {months[selectedMonth - 1]} {selectedYear}
+                    No users signed up in {months[selectedMonth - 1]}{" "}
+                    {selectedYear}
                   </p>
                 </div>
               )}
