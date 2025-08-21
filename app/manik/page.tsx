@@ -1,17 +1,20 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, DollarSign, Loader2 } from 'lucide-react';
+import { Calendar, Users, DollarSign, Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 interface UserData {
   maskedEmail: string;
   signupDate: string;
   name: string;
+  hasActivePlan: boolean;
 }
 
 interface SignupResponse {
   success: boolean;
   count?: number;
   users?: UserData[];
+  activePlansCount?: number;
+  inactivePlansCount?: number;
   error?: string;
 }
 
@@ -84,6 +87,12 @@ const Dashboard = () => {
     }).format(amount);
   };
 
+  const getConversionRate = () => {
+    if (!signupData?.count || signupData.count === 0) return 0;
+    const activePlans = signupData.activePlansCount || 0;
+    return ((activePlans / signupData.count) * 100).toFixed(1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -145,7 +154,7 @@ const Dashboard = () => {
         {!loading && (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {/* Total Signups Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex items-center">
@@ -153,12 +162,48 @@ const Dashboard = () => {
                     <Users className="w-6 h-6 text-blue-600" />
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Total Signups</h3>
+                    <h3 className="text-sm font-medium text-gray-900">Total Signups</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">
                       {signupData?.count || 0}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {months[selectedMonth - 1]} {selectedYear}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Plans Card */}
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-lg bg-green-100">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-900">Active Plans</h3>
+                    <p className="text-2xl font-bold text-green-600 mt-1">
+                      {signupData?.activePlansCount || 0}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {getConversionRate()}% conversion
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inactive Plans Card */}
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-lg bg-red-100">
+                    <XCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-900">No Plans</h3>
+                    <p className="text-2xl font-bold text-red-600 mt-1">
+                      {signupData?.inactivePlansCount || 0}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Free users
                     </p>
                   </div>
                 </div>
@@ -167,15 +212,15 @@ const Dashboard = () => {
               {/* Total Revenue Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex items-center">
-                  <div className="p-3 rounded-lg bg-green-100">
-                    <DollarSign className="w-6 h-6 text-green-600" />
+                  <div className="p-3 rounded-lg bg-yellow-100">
+                    <DollarSign className="w-6 h-6 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Total Revenue</h3>
+                    <h3 className="text-sm font-medium text-gray-900">Total Revenue</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">
                       {formatCurrency(revenueData?.totalRevenue || 0)}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {months[selectedMonth - 1]} {selectedYear}
                     </p>
                   </div>
@@ -191,6 +236,11 @@ const Dashboard = () => {
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
                   {signupData?.count || 0} users signed up this month
+                  {signupData?.activePlansCount !== undefined && (
+                    <span className="ml-2">
+                      • {signupData.activePlansCount} with active plans
+                    </span>
+                  )}
                 </p>
               </div>
               
@@ -207,6 +257,9 @@ const Dashboard = () => {
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Signup Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Plan Status
                         </th>
                       </tr>
                     </thead>
@@ -225,6 +278,19 @@ const Dashboard = () => {
                               month: 'short',
                               day: 'numeric',
                             })}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {user.hasActivePlan ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <XCircle className="w-3 h-3 mr-1" />
+                                Free
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}
